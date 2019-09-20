@@ -63,7 +63,18 @@ For addiotional details, please refer to `scripts/README`. More information abou
 
 Shail Dave, Youngbin Kim, Sasikanth Avancha, Kyoungwoo Lee, Aviral Shrivastava, [dMazeRunner: Executing Perfectly Nested Loops on Dataflow Accelerators](http://aviral.lab.asu.edu/bibadmin/uploads/pdf/dMazeRunner.pdf), in ACM Transactions on Embedded Computing Systems (TECS) \[Special Issue on ESWEEK 2019 - ACM/IEEE International Conference on Hardware/Software Codesign and System Synthesis (CODES+ISSS)\]  (to appear)
 
+If you find dMazeRunner useful or if you use it in your work, please cite the following paper:
 
+```
+@Article{DaveTECS2019,
+      AUTHOR = {Dave, Shail and Kim, Youngbin and Avancha, Sasikanth and Lee, Kyoungwoo and Shrivastava, Aviral},
+      TITLE = {DMazeRunner: Executing Perfectly Nested Loops on Dataflow Accelerators},
+      YEAR = {2019},
+      JOURNAL = {ACM Transactions on Embedded Computing Systems (TECS)},
+      VOLUME = {18},
+      NUMBER = {5s}
+}   
+```
 
 ### Contact Information
 
