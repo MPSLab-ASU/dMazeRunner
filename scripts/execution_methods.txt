@@ -1,0 +1,162 @@
+Execution Methods:
+Different ways of spatiotemporally executing a nested loop on the dataflow
+accelerator leads to different execution methods. When a programmer or a
+mapping optimizer chooses a way of spatiotemporal execution of the loop-nest,
+that leads to a particular execution method. An execution method features
+tiling and ordering of the loops for spatiotemporal execution. For example,
+consider a 256-PE (Processing Elements bring spatial dimension) accelerator
+featuring 512B Register Files (RFs) per PE, and a shared 128 kB scratchpad
+memory (SPM); data processed by PEs is temporally communicated via RFs, SPM,
+and DRAM (main memory). Each execution method is a mapping of the loop-nest of
+a model's layer (loop-nest) onto the accelerator resources.
+
+For an execution method, selecting which loops are (completely or in part)
+executed in the space determines what subset of the data gets processed by
+each PE. Similarly, for an execution method, the organization of the loops that
+execute temporally on each PE determines the exact sequence of processing the
+data and thus, significantly impacts the data reuse and data management of RFs
+and SPM. Thus, execution methods significantly impact the computation and
+communication patterns within the accelerator and therefore, the power and
+performance of the execution. If they are not optimized/chosen well, it may
+yield poor acceleration benefits.
+
+Now, let's look at tiling factors of loop-orderings for an execution method.
+
+Tiling factors:
+A 7-deep loop-nest of convolution (conv) or a 3-deep loop-nest of dense
+matrix-multiplication kernel (gemm) needs to be tiled for spatial processing of
+different data in PEs and temporally accessing the data from the
+registers/memories (e.g., L1 memory = RF, L2 = SPM, L3 = DRAM). Therefore,
+each loop of a loop-nest can be tiled into a total of 4 loops for their
+spatiotemporal execution. Thus, a 7-deep and 3-deep loop-nests are transformed
+into a 28-deep and 12-deep loop-nests, respectively. Note that the tiling
+factors of an execution method represents how loops are tiled for spatial
+execution as well as for accessing data from RF, SPM, and DRAM.
+
+
+For example, consider the following kernel for a convolution layer.
+
+for n=1:N		 	% batch size
+ for m=1:M		 	% filters (output channels)
+  for c=1:C	 		% input channels
+   for ox=1:Ox	 		% ofmap rows
+    for oy=1:Oy	 		% ofmap cols
+     for fx=1:Fx   		% filter height
+      for fy=1:Fy  		% filter width
+        O[n][m][ox][oy] += I[n][c][ox+fx-1][oy+fy-1] x W[m][c][fx][fy];
+
+After tiling the loop-nest for spatiotemproal execution, it looks like:
+
+for n_L3 = 1:N_DRAM
+ for m_L3 = 1:M_DRAM
+  for c_L3 = 1:C_DRAM
+   for ox_L3 = 1:Ox_DRAM
+    for oy_L3 = 1:Oy_DRAM
+     for fx_L3 = 1:Fx_DRAM
+      for fy_L3 = 1:Fy_DRAM
+      {
+        dma( );
+ 	 for n_L2 = 1:N_SPM
+	  for m_L2 = 1:M_SPM
+	   for c_L2 = 1:C_SPM
+	    for ox_L2 = 1:Ox_SPM
+	     for oy_L2 = 1:Oy_SPM
+	      for fx_L2 = 1:Fx_SPM
+	       for fy_L2 = 1:Fy_SPM
+	       {
+		  access_SPM_comm_NoC();
+ 		  for n_L1 = 1:N_RF
+ 		   for m_L1 = 1:M_RF
+ 		    for c_L1 = 1:C_RF
+		     for ox_L1 = 1:Ox_RF
+		      for oy_L1 = 1:Oy_RF
+		       for fx_L1 = 1:Fx_RF
+		        for fy_L1 = 1:Fy_RF
+		        {
+			  for n_S = 1:N_SPATIAL
+			   for m_S = 1:M_SPATIAL
+	  		    for c_S = 1:C_SPATIAL
+			     for ox_S = 1:Ox_SPATIAL
+			      for oy_S = 1:Oy_SPATIAL
+			       for fx_S = 1:Fx_SPATIAL
+      			        for fy_S = 1:Fy_SPATIAL
+			         O[][][][] += I[][][][] x W[][][][];
+
+		        }
+	       }
+      }
+
+
+Trip-counts of the original/non-tiled kernel can be represented as
+(N, M, C, Ox, Oy, Fx, Fy). For example, consider execution of the conv5_2
+layer of ResNet model: batch size (N)=4, 9x9 ifmaps (padded, stride=1) with
+512 channels (C), 3x3 weights (Fx x Fy) for 512 channels and 512 such
+filters (M), and 7x7 (Ox x Oy) ofmaps. Then, the base trip-counts of the
+loop-nest can be represented with a list/tuple of values
+(4, 512, 512, 7, 7, 3, 3).
+
+Tiling factors of an execution methods are grouped as (DRAM, SPM, RF, SPATIAL),
+i.e., ( (N_DRAM, M_DRAM, C_DRAM, Ox_DRAM, Oy_DRAM, Fx_DRAM, Fy_DRAM),
+(N_SPM, M_SPM, C_SPM, Ox_SPM, Oy_SPM, Fx_SPM, Fy_SPM),
+(N_RF, M_RF, C_RF, Ox_RF, Oy_RF, Fx_RF, Fy_RF),
+(N_SPATIAL, M_SPATIAL, C_SPATIAL, Ox_SPATIAL, Oy_SPATIAL, Fx_SPATIAL, Fy_SPATIAL) ).
+
+For example, tiling factor values of (1, 2, 2, 7, 7, 1, 1) for Spatial level
+represents that spatial unrolling factor for the loops with index variables
+['N', 'M', 'C', 'Ox', 'Oy', 'Fx', 'Fy'], i.e. a  total of 1*2*2*7*7*1*1 = 196
+PEs. Tiling factors of (4, 16, 8, 1, 1, 1, 1) for RF level indicates that given
+data allocated in RF, all L1 loops will execute 4*16*8*1*1*1*1 = 512 iterations
+to process the entire data from RF in one shot, and will compute a total of
+512 multiply-and-accumulate operations on a PE. Note that tiling factor of 1
+e.g., N_DRAM=1 implies that for the optimization, we can omit the loop with
+index variable n_L3.
+
+
+Ordering of the loops: For a given set of tiling factors, loops at each level
+(Spatial, L1, L2, L3) can be re-oredered, which may yield a different dataflow
+execution. In general, loops at L1 (RF) are unrolled for executing data from
+RFs of PEs, and therefore, their ordering does not significantly impact the
+data reuse. Similarly, ordering of SPATIAL loops can differentiate how PEs are
+grouped in the hardware for data communication, but it does not impact data
+accesses from the lower memories. Note that this information is pivotal for
+code generation. For mapping-optimization perspective, we can primarily
+consider ordering of the L2/L3 loops, which significantly impacts the reuse of
+the tensor data while communicating it to/from lower memories. For example,
+tiling factors and ordering of L2 loops affect SPM accesses and the cost of
+data communication to RF via NOC. Similarly, tiling factors and ordering of L3
+loops determine data communicated from/to DRAM (reuse factor for data in SPM).
+
+
+Ordering of ['N', 'C', 'Fx', 'Fy', 'M', 'Ox', 'Oy'] for SPM level indicates
+that among 7 loops accessing SPM or L2 memory, the innermost loop is the one
+with index variable 'Oy' and the outermost loop is the one with index variable
+'N', i.e., L2 loops are ordered as follows:
+
+// L3 loops
+{
+  dma( );
+  for n_L2 = 1:N_SPM
+   for c_L2 = 1:C_SPM
+    for fx_L2 = 1:Fx_SPM
+     for fy_L2 = 1:Fy_SPM
+      for m_L2 = 1:M_SPM
+       for ox_L2 = 1:Ox_SPM
+        for oy_L2 = 1:Oy_SPM
+        {
+	  // L1 and SPATIAL loops
+        }
+}
+
+Thus, after optimizing the loops of a layer, dMazeRunner outputs optimized
+execution method that consists tiling factors and loop-orderings. A sample
+execution method looks like:
+Tiling factors (DRAM, SPM, RF, SPATIAL): ((1, 8, 16, 1, 1, 1, 1),
+(1, 1, 8, 1, 1, 1, 1), (1, 1, 4, 7, 7, 1, 1), (1, 256, 1, 1, 1, 1, 1))
+Ordering (DRAM, SPM): (['Fx', 'N', 'Fy', 'Oy', 'Ox', 'M', 'C'],
+['Fx', 'N', 'Fy', 'Oy', 'Ox', 'M', 'C'])
+
+Note that for entire model evaluation, dMazeRunner outputs optimized execution
+method for each layer. The output provides three execution methods, optimized
+each for Energy-Delay Product (EDP) estimation, and that for the energy and
+execution cycles. This is because, execution method optimized for EDP is not
+necessarily the same as that optimized for energy or performance.

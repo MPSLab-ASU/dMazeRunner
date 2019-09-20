@@ -1,0 +1,23 @@
+{
+    "arch_details": {
+        "pe_pipelined": true,
+        "pe_pipeline_stages": 1,
+        "data_type_size_in_bytes": 2,
+        "dma_init_cycles": 291,
+        "dma_cycles_per_byte": 0.24,
+        "dma_frequency": 3200,
+        "dataflow_accel_frequency": 500,
+        "rf_energy": 0.96,
+        "communication_energy": 2,
+        "spm_energy": 13.5,
+        "dram_energy": 200,
+        "mac_energy": 0.075
+    },
+    "arch_basic": {
+        "CGRA_SIZE": 256,
+        "RF_SIZE": 512,
+        "BYTES_PER_DATA": 2,
+        "TOTAL_BANKS_IN_SPM": 32,
+        "TOTAL_BYTES_IN_BANK": 2048
+    }
+}
