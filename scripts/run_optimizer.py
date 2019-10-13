@@ -143,7 +143,7 @@ def main():
 
     params.PRUNE_NO_FEATURE_DRAM = True if args.opt_no_feature_dram else False
     params.PRUNE_NO_REDUCTION = True if args.opt_no_spatial_reduction else False
-    params.MIN_EXEC_METHODS = args.min_exec_methods if args.min_exec_methods > 1 else 1
+    params.MIN_EXEC_METHODS = int(args.min_exec_methods) if int(args.min_exec_methods) > 1 else 1
 
     if args.auto_optimize:
         params.PE_UTILIZATION = 0.8
@@ -296,7 +296,7 @@ def parse_arguments():
         help="Discard execution methods that access non-contiguous 2D data of a tensor from DRAM.")
     parser.add_argument("--opt-no-spatial-reduction", action="store_true",
         help="Discard execution methods that require inter-PE communication to perform a reduction operation for the output.")
-    parser.add_argument("--opt-min-exec-methods", action="store", dest="min_exec_methods", type=int, nargs=1, default=1,
+    parser.add_argument("--opt-min-exec-methods", action="store", dest="min_exec_methods", type=int, default=1,
         help="Explore at least specified number of efficient execution methods.")
 
 
