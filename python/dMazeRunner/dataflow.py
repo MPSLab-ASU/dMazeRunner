@@ -1603,7 +1603,7 @@ def parse_layers(sym):
     return layers
 
 
-def parse_conv_layers(sym, target, shape_dict, params, env):
+def parse_conv_layers(sym, target, shape_dict, params, env, batch_size):
     """
     Parse the graph `sym` and find conv layers.
     Update `Dataflow.conv_layers` with the found layers.
@@ -1613,6 +1613,9 @@ def parse_conv_layers(sym, target, shape_dict, params, env):
     conv_layers: list
         list of `ConvLayer`
     """
+    # TODO: Supply batch_size from input_shape directly i.e., through
+    # downloading models for a specific batch size.
+
     layers = parse_layers(sym)
 
     conv_layers = []
@@ -1657,15 +1660,16 @@ def parse_conv_layers(sym, target, shape_dict, params, env):
             name = layer["name"]
             layer["output_shape"] = output_shape[name]
             layer["input_shape"] = input_shape[name]
+            layer["batch_size"] = batch_size
             conv_layer = ConvLayer(env=env, **layer)
             parsed_layers.append(conv_layer)
         elif "op" in layer and "dense" in layer["op"]:
             name = layer["name"]
             layer["output_shape"] = output_shape[name]
             layer["input_shape"] = input_shape[name]
-            layer["M"] = int(layer["units"])
+            layer["M"] = int(input_shape[name][0]) * batch_size
             layer["N"] = int(layer["units"])
-            layer["K"] = int(layer["units"])
+            layer["K"] = int(input_shape[name][1])
             conv_layer = GemmLayer(env=env, **layer)
             parsed_layers.append(conv_layer)
         else: #not yet supported layer type
@@ -1674,8 +1678,8 @@ def parse_conv_layers(sym, target, shape_dict, params, env):
     return parsed_layers
 
 
-def get_dataflow(sym, target, shape_dict, params):
+def get_dataflow(sym, target, shape_dict, params, batch_size=1):
     #log.setLevel(logging.DEBUG)
     env = expr_parameters.Environment()
-    conv_layers = parse_conv_layers(sym, target, shape_dict, params, env)
+    conv_layers = parse_conv_layers(sym, target, shape_dict, params, env, batch_size)
     return conv_layers

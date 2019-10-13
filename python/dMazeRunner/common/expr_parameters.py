@@ -56,7 +56,10 @@ class ExprParameters:
                     SPM_UTILIZATION = 0,
                     # Parameters for optimization strategies of search-reduction
                     PRUNE_NO_FEATURE_DRAM = False,
-                    PRUNE_NO_REDUCTION = False
+                    PRUNE_NO_REDUCTION = False,
+                    MIN_EXEC_METHODS = 1,
+                    THRESHOLD_BEGIN_REDUCE_SPM_UTIL = 0.6,
+                    THRESHOLD_DISABLE_OPTS = 0.3
                     ):
         self.CGRA_SIZE = CGRA_SIZE
         self.RF_SIZE = RF_SIZE / BYTES_PER_DATA
@@ -68,6 +71,9 @@ class ExprParameters:
         self.SPM_UTILIZATION = SPM_UTILIZATION
         self.PRUNE_NO_FEATURE_DRAM = PRUNE_NO_FEATURE_DRAM
         self.PRUNE_NO_REDUCTION = PRUNE_NO_REDUCTION
+        self.MIN_EXEC_METHODS = MIN_EXEC_METHODS
+        self.THRESHOLD_BEGIN_REDUCE_SPM_UTIL = THRESHOLD_BEGIN_REDUCE_SPM_UTIL
+        self.THRESHOLD_DISABLE_OPTS = THRESHOLD_DISABLE_OPTS
 
         if _env != None:
             self.env = _env

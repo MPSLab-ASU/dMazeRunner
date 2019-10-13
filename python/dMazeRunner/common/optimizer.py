@@ -291,6 +291,9 @@ def optimize(model, params=None, env_config=None):
     result_df = find_optimal(model, env_config)
     result_df.energy = result_df.energy.astype(float)
 
+    if len(result_df) == 0:
+        return None
+
     min_edp_row = result_df.iloc[result_df["edp"].idxmin()]
     min_edp, min_edp_seq = min_edp_row["edp"], min_edp_row["edp_seq"]
 

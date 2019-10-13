@@ -18,7 +18,6 @@ from dMazeRunner.common import print_summary
 
 supported_frontends = ["mxnet", "keras"]
 
-
 def download(url, path, overwrite=False):
     import os
     if os.path.isfile(path) and not overwrite:
@@ -41,7 +40,7 @@ def download_block_from_mxnet(args):
     target = 'llvm'
     shape = (1, 3, 224, 224) #input shape; need to be obtained from the model
     shape_dict = {'data': shape}
-    model_layers = get_dataflow(sym, target, shape_dict, params)
+    model_layers = get_dataflow(sym, target, shape_dict, params, args.batch_size)
     return model_layers
 
 
@@ -75,8 +74,29 @@ def download_block_from_keras(args):
         print("not supported model; supported models:", supported_models)
         exit()
 
-    model_layers = get_dataflow(sym, target, shape_dict, params)
+    model_layers = get_dataflow(sym, target, shape_dict, params, args.batch_size)
     return model_layers
+
+
+def adjust_optimization_strategies(params):
+    retVal = True
+
+    if params.PE_UTILIZATION > 0 and params.RF_UTILIZATION > 0:
+        params.PE_UTILIZATION = params.PE_UTILIZATION - 0.1
+        params.RF_UTILIZATION = params.RF_UTILIZATION - 0.1
+
+    if params.PE_UTILIZATION <= params.THRESHOLD_BEGIN_REDUCE_SPM_UTIL or params.RF_UTILIZATION <= params.THRESHOLD_BEGIN_REDUCE_SPM_UTIL:
+        params.SPM_UTILIZATION = params.SPM_UTILIZATION - 0.1
+
+    if params.PE_UTILIZATION <= params.THRESHOLD_DISABLE_OPTS or params.RF_UTILIZATION <= params.THRESHOLD_DISABLE_OPTS:
+        params.PRUNE_NO_FEATURE_DRAM = False
+        params.PRUNE_NO_REDUCTION = False
+        params.MIN_EXEC_METHODS = 1
+
+    if params.PE_UTILIZATION < 0 or params.RF_UTILIZATION < 0 or params.SPM_UTILIZATION < 0:
+        retVal = False
+
+    return retVal
 
 
 def main():
@@ -123,6 +143,7 @@ def main():
 
     params.PRUNE_NO_FEATURE_DRAM = True if args.opt_no_feature_dram else False
     params.PRUNE_NO_REDUCTION = True if args.opt_no_spatial_reduction else False
+    params.MIN_EXEC_METHODS = args.min_exec_methods if args.min_exec_methods > 1 else 1
 
     if args.auto_optimize:
         params.PE_UTILIZATION = 0.8
@@ -130,6 +151,7 @@ def main():
         params.SPM_UTILIZATION = 0.5
         params.PRUNE_NO_FEATURE_DRAM = True
         params.PRUNE_NO_REDUCTION = True
+        params.MIN_EXEC_METHODS = 100
 
     if args.min_resource_utilization:
         threshold_resource_util = args.min_resource_utilization
@@ -174,9 +196,31 @@ def main():
         print("compiling layer {}: {} ({})".format(i, layer.name, layer_type))
         print(layer)
 
+        result = None
+        skip_layer = False
         start_time = datetime.datetime.now()
-        #min_edp, min_edp_seq, min_energy, min_energy_seq, min_cycle, min_cycle_seq = optimizer.optimize(layer, params)
+
         result = optimizer.optimize(layer, params)
+        num_evaluations = optimizer.get_num_evaluations(layer, params)
+
+        # Adaptive search for finding efficient execution methods
+        while (result == None) or (num_evaluations < params.MIN_EXEC_METHODS):
+            if args.auto_optimize:
+                adjust_opts_success = adjust_optimization_strategies(params)
+                if adjust_opts_success == False:
+                    print("Optimizer did not find any execution method to evaluate. Please try with another application model and/or target architecture instead.")
+                    skip_layer = True
+                    break
+                result = optimizer.optimize(layer, params)
+                num_evaluations = optimizer.get_num_evaluations(layer, params)
+            else:
+                print("Optimizer did not find any execution method to evaluate. Please try some different optimization strategy, e.g., apply smaller pruning factors, or try auto-optimizer.")
+                skip_layer = True
+                break
+
+        if skip_layer == True:
+            continue
+
         end_time = datetime.datetime.now()
 
         delta = end_time - start_time
@@ -228,6 +272,8 @@ def parse_arguments():
         To list all layers of a model, please use --list-layers.")
     parser.add_argument("--list-layers", action="store_true",
         help="Lists all layers of a model.")
+    parser.add_argument("--batch-size", dest="batch_size", type=int, default=1,
+        help="Specify batch size for executing a model or a layer. Default is 1.")
 
     # Set architecture specifications
     parser.add_argument("--arch-spec",
@@ -247,9 +293,12 @@ def parse_arguments():
             For example, arguments \' 0.8 0.7 0.5 \' refer to utilization factors of Processing Elements, RegFiles, and scratchpad memory, respectively. \
             Each utilization factor ranges between 0.0 and 1.0. Factor 0.0 implies no search-reduction based on utilization.")
     parser.add_argument("--opt-no-feature-dram", action="store_true",
-        help="Prune execution methods that access non-contiguous 2D data of a tensor from DRAM.")
+        help="Discard execution methods that access non-contiguous 2D data of a tensor from DRAM.")
     parser.add_argument("--opt-no-spatial-reduction", action="store_true",
-        help="Prune execution methods that require inter-PE communication to perform a reduction operation for the output.")
+        help="Discard execution methods that require inter-PE communication to perform a reduction operation for the output.")
+    parser.add_argument("--opt-min-exec-methods", action="store", dest="min_exec_methods", type=int, nargs=1, default=1,
+        help="Explore at least specified number of efficient execution methods.")
+
 
     args = parser.parse_args()
     return args
