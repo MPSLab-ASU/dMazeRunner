@@ -63,7 +63,7 @@ def valid_rf(layer, stride, rf_factor):
     regs_alloc = 0
 
     if type(layer) == ConvLayer:
-        n, m, c, ox, oy, fy, fx = rf_factor
+        n, m, c, ox, oy, fx, fy = rf_factor
         S = stride
         regs_alloc += n * c * ((ox-1)*S + fx) * ((oy-1)*S + fy) #I
         regs_alloc += m * c * fx * fy #W
@@ -84,7 +84,7 @@ def valid_spm(layer, stride, spatial_rf_factor, spm_factor):
     prod = [ x*y for x,y in zip(spatial_rf_factor, spm_factor)]
 
     if type(layer) == ConvLayer:
-        n, m, c, oy, ox, fy, fx = prod
+        n, m, c, ox, oy, fx, fy = prod
         S = stride
         weights_SPM = n * c * ((ox-1)*S + fx) * ((oy-1)*S + fy) #I
         ifmap_SPM = m * c * fx * fy #W
