@@ -30,7 +30,7 @@ For additional information, please refer to file `setup.txt`.
 ## High-level Overview
 
 <p align="center">
-  <img src="http://aviral.lab.asu.edu/wp-content/uploads/2019/09/dMazeRunner.png"/ height="300">
+  <img src="https://labs.engineering.asu.edu/mps-lab/wp-content/uploads/sites/8/2019/09/dMazeRunner.png"/ height="300">
 </p>
     
 1. **Front-end**: Front-end of the framework deals with parsing the specified deep learning model and extracts the necessary information about target loop-nests. The front-end leverages TVM environment to support multiple ML libraries such as MXNet and keras. 
@@ -61,19 +61,39 @@ For addiotional details, please refer to `scripts/README`. More information abou
 
 ## Publication
 
-Shail Dave, Youngbin Kim, Sasikanth Avancha, Kyoungwoo Lee, Aviral Shrivastava, [dMazeRunner: Executing Perfectly Nested Loops on Dataflow Accelerators](http://aviral.lab.asu.edu/bibadmin/uploads/pdf/dMazeRunner.pdf), in ACM Transactions on Embedded Computing Systems (TECS) \[Special Issue on ESWEEK 2019 - ACM/IEEE International Conference on Hardware/Software Codesign and System Synthesis (CODES+ISSS)\]  (to appear)
-
 If you find dMazeRunner useful or if you use it in your work, please cite the following paper:
 
+Shail Dave, Youngbin Kim, Sasikanth Avancha, Kyoungwoo Lee, Aviral Shrivastava, dMazeRunner: Executing Perfectly Nested Loops on Dataflow Accelerators, in ACM Transactions on Embedded Computing Systems (TECS) \[Special Issue on ESWEEK 2019 - ACM/IEEE International Conference on Hardware/Software Codesign and System Synthesis (CODES+ISSS)\].
+\[[PDF](https://dl.acm.org/doi/pdf/10.1145/3358198)\] \[[Slides](https://mpslab-asu.github.io/publications/slides/Dave2019TECS.pptx)\]
+
+(Key topics: Understanding spatiotemporal execution and dataflow mechanisms; Abstraction for comprehensive search-space, Analytical cost model for hardware accelerators; Determining unique and maximum data reuse of tensors; How to optimize mappings for quick search-space exploration.)
+
 ```
-@Article{DaveTECS2019,
-      AUTHOR = {Dave, Shail and Kim, Youngbin and Avancha, Sasikanth and Lee, Kyoungwoo and Shrivastava, Aviral},
-      TITLE = {DMazeRunner: Executing Perfectly Nested Loops on Dataflow Accelerators},
-      YEAR = {2019},
-      JOURNAL = {ACM Transactions on Embedded Computing Systems (TECS)},
-      VOLUME = {18},
-      NUMBER = {5s}
+@article{dave2019dmazerunner,
+  title={Dmazerunner: Executing perfectly nested loops on dataflow accelerators},
+  author={Dave, Shail and Kim, Youngbin and Avancha, Sasikanth and Lee, Kyoungwoo and Shrivastava, Aviral},
+  journal={ACM Transactions on Embedded Computing Systems (TECS)},
+  volume={18},
+  number={5s},
+  pages={1--27},
+  year={2019},
+  publisher={ACM New York, NY, USA}
 }   
+```
+
+Shail Dave, Aviral Shrivastava, Youngbin Kim, Sasikanth Avancha, Kyoungwoo Lee, dMazeRunner: Optimizing Convolutions on Dataflow Accelerators, in IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), 2020. \[[PDF](https://mpslab-asu.github.io/publications/papers/Dave2020ICASSP.pdf)\] \[[Slides](https://mpslab-asu.github.io/publications/slides/Dave2020ICASSP.pptx)\] \[[Talk](https://www.youtube.com/watch?v=21F79Taelts)\]
+
+(Key topics: Tool capabilities including allowing users to determine efficiency of execution methods, automated and quick optimizations for mapping DNN operators onto accelerators, design space exploration.)
+
+```
+@inproceedings{dave2020dmazerunner,
+  title={dMazeRunner: Optimizing Convolutions on Dataflow Accelerators},
+  author={Dave, Shail and Shrivastava, Aviral and Kim, Youngbin and Avancha, Sasikanth and Lee, Kyoungwoo},
+  booktitle={ICASSP 2020-2020 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)},
+  pages={1544--1548},
+  year={2020},
+  organization={IEEE}
+}
 ```
 
 ### Contact Information
