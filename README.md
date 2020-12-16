@@ -99,3 +99,8 @@ Shail Dave, Aviral Shrivastava, Youngbin Kim, Sasikanth Avancha, Kyoungwoo Lee, 
 ### Contact Information
 
 For any questions or comments on dMazeRunner, please email us at cmlasu@gmail.com
+
+
+### Acknowledgement
+
+This research was partially supported by funding from NSF grant CCF 1723476 - NSF/Intel joint research center for Computer Assisted Programming for Heterogeneous Architectures (CAPA), and from grants NRF-2015M3C4A7065522 and 2014-3-00035, funded by MSIT. Any opinions, findings, and conclusions presented in this material are those of the authors and do not necessarily reflect the views of their employers or the sponsoring agencies.
