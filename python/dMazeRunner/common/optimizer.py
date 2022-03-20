@@ -1,5 +1,5 @@
 import tvm
-from dMazeRunner.dataflow import ConvLayer, GemmLayer
+from dMazeRunner.dataflow import ConvLayer, GemmLayer, DWConvLayer
 from dMazeRunner.common import layer_info, expr_parameters
 import multiprocessing as mp
 import time
@@ -56,6 +56,10 @@ def valid_spatial(layer, spatial_factor, expr_params=None):
         x, y, k = spatial_factor
         no_reduction = k == 1 if PARAMS.PRUNE_NO_REDUCTION else True
 
+    elif PARAMS.PRUNE_NO_REDUCTION and type(layer) == DWConvLayer:
+        n, m, c, ox, oy, fx, fy = spatial_factor
+        no_reduction = fx == 1 and fy == 1 if PARAMS.PRUNE_NO_REDUCTION else True
+
     return size_constraint and utilization_constraint and no_reduction
 
 
@@ -74,6 +78,13 @@ def valid_rf(layer, stride, rf_factor):
         regs_alloc += x * y
         regs_alloc += k * y
         regs_alloc += x * k
+
+    elif type(layer) == DWConvLayer:
+        n, m, c, ox, oy, fx, fy = rf_factor
+        S = stride
+        regs_alloc += n * c * ((ox-1)*S + fx) * ((oy-1)*S + fy) #I
+        regs_alloc += m * c * fx * fy #W
+        regs_alloc += n * c * ox * oy #O
 
     size_constraint = regs_alloc <= PARAMS.RF_SIZE
     utilization_constraint = (regs_alloc/PARAMS.RF_SIZE) >= PARAMS.RF_UTILIZATION
@@ -107,6 +118,14 @@ def valid_spm(layer, stride, spatial_rf_factor, spm_factor):
         C_SPM = x * y
         elements = [A_SPM, B_SPM, C_SPM]
 
+    elif type(layer) == DWConvLayer:
+        n, m, c, ox, oy, fx, fy = prod
+        S = stride
+        weights_SPM = n * c * ((ox-1)*S + fx) * ((oy-1)*S + fy) #I
+        ifmap_SPM = m * c * fx * fy #W
+        psum_SPM = n * c * ox * oy #O
+        elements = [weights_SPM, ifmap_SPM, psum_SPM]
+
     banks = [ math.ceil(element * PARAMS.BYTES_PER_DATA / PARAMS.TOTAL_BYTES_IN_BANK) for element in elements ]
     data_banks_alloc_SPM = sum(banks)
     data_alloc_SPM = sum(elements) * PARAMS.BYTES_PER_DATA
@@ -119,7 +138,7 @@ def valid_spm(layer, stride, spatial_rf_factor, spm_factor):
 
 
 def valid_dram(layer, dram_factor):
-    if type(layer) == ConvLayer:
+    if (type(layer) == ConvLayer) or (type(layer) == DWConvLayer):
         n, m, c, ox, oy, fx, fy = dram_factor
         no_feature_constraint = fx == 1 and fy == 1 if PARAMS.PRUNE_NO_FEATURE_DRAM else True
         return no_feature_constraint
@@ -217,7 +236,7 @@ def run_thread(params, count_only=False):
 
 
 def find_optimal(model, env_config=None):
-    if type(model) in [ConvLayer, GemmLayer]:
+    if type(model) in [ConvLayer, GemmLayer, DWConvLayer]:
         layer = model
     else:
         return -1
@@ -256,7 +275,7 @@ def find_optimal(model, env_config=None):
 
 
 def get_num_evaluations(model, _params, env_config=None):
-    if type(model) in [ConvLayer, GemmLayer]:
+    if type(model) in [ConvLayer, GemmLayer, DWConvLayer]:
         layer = model
     else:
         return -1

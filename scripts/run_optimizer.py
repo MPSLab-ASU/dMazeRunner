@@ -11,7 +11,7 @@ import argparse
 import datetime
 import json
 
-from dMazeRunner.dataflow import get_dataflow, ConvLayer, GemmLayer
+from dMazeRunner.dataflow import get_dataflow, ConvLayer, GemmLayer, DWConvLayer
 from dMazeRunner.common import expr_parameters
 import dMazeRunner.common.optimizer as optimizer
 from dMazeRunner.common import print_summary
@@ -162,7 +162,7 @@ def main():
     try:
         layers = [model_layers[int(args.layer)]]
         layer = layers[0]
-        if type(layer) not in [ConvLayer, GemmLayer]:
+        if type(layer) not in [ConvLayer, GemmLayer, DWConvLayer]:
             try:
                 layer_type = layer.name
             except:
@@ -188,7 +188,7 @@ def main():
     total_time = datetime.timedelta(0)
 
     for i, layer in enumerate(layers):
-        if type(layer) not in [ConvLayer, GemmLayer]:
+        if type(layer) not in [ConvLayer, GemmLayer, DWConvLayer]:
             continue
         layer.env = env
         layer_type = str(type(layer)).split(".")[-1][:-2]

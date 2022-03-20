@@ -34,7 +34,8 @@ class LayerBase:
     def __init__(self, env, **kargs):
         self.env = env
         self.name = kargs["name"]
-
+        self.index = kargs["index"] if "index" in kargs else 1
+        self.instances = kargs["instances"] if "instances" in kargs else 1
         self.tiling_levels = ["DRAM", "SPM", "RF", "Spatial"]
 
         # Child class should initialize these properties
@@ -1291,7 +1292,7 @@ class ConvLayer(LayerBase):
         # set loop trip counts
         self._loop_TCs = {}
         for iv in self.base_TCs:
-            # set DRAM = base_TC and others to 1
+            # set DRAM as base_TC and others to 1
             tiling = [self.base_TCs[iv]] + [1]*(len(self.tiling_levels)-1)
             self.set_tiling(iv, tiling)
 
@@ -1299,7 +1300,6 @@ class ConvLayer(LayerBase):
         self._loop_index_from_orderings = {}
         for i, ordering in enumerate(self._loop_orderings):
             self._loop_index_from_orderings[ordering] = i
-        #
 
     def __repr__(self):
         return "name: {}, channels: {}, kernel_size: {}, input_shape: {}, output_shape: {}, padding: {}, strides: {}".format(self.name, self.channels, self.kernel_size, self.input_shape, self.output_shape, self.padding, self.strides)
@@ -1410,6 +1410,146 @@ class ConvLayer(LayerBase):
         assert name in ret_dict
         return ret_dict[name]
     """
+
+
+class DWConvLayer(ConvLayer):
+    def __init__(self, env, **kargs):
+        super().__init__(env, **kargs)
+        self.channels = kargs["channels"]
+        self.kernel_size = int(kargs["kernel_size"][1:-1].split(",")[0])
+        self.padding = int(kargs["padding"][1:-1].split(",")[0])
+        self.strides = int(kargs["strides"][1:-1].split(",")[0])
+        self.output_shape = kargs["output_shape"]
+        self.input_shape = kargs["input_shape"]
+        if "batch_size" in kargs:
+            self.batch_size = kargs["batch_size"]
+        elif "batch" in kargs:
+            self.batch_size = kargs["batch"]
+        else:
+            self.batch_size = 1
+
+        self.name += "_depthwise"
+
+        self._I = None
+        self._W = None
+        self._O = None
+        self.loop = self._get_loop()
+
+        self.base_TCs = {
+            "N": self.batch_size,
+            "M": 1,
+            "C": self.input_shape[1],
+            "Ox": self.output_shape[2],
+            "Oy": self.output_shape[2],
+            "Fx": self.kernel_size,
+            "Fy": self.kernel_size,
+        }
+
+        # set loop induction variables and their orders
+        self._default_loop_order = ["N", "M", "C", "Ox", "Oy", "Fx", "Fy"]
+        default_order = self._default_loop_order
+        self._loop_IVs = {}
+        for level in self.tiling_levels:
+            self._loop_IVs[level] = [ x+"_"+level for x in default_order ]
+
+        # set loop trip counts
+        self._loop_TCs = {}
+        for iv in self.base_TCs:
+            # set DRAM as base_TC and other TCs to 1
+            tiling = [self.base_TCs[iv]] + [1]*(len(self.tiling_levels)-1)
+            self.set_tiling(iv, tiling)
+
+        self._loop_orderings = self.generate_loop_orderings()
+        self._loop_index_from_orderings = {}
+        for i, ordering in enumerate(self._loop_orderings):
+            self._loop_index_from_orderings[ordering] = i
+
+    def __repr__(self):
+        return "name: {}, channels: {}, kernel_size: {}, input_shape: {}, output_shape: {}, padding: {}, strides: {}".format(self.name, self.channels, self.kernel_size, self.input_shape, self.output_shape, self.padding, self.strides)
+
+    def _get_loop(self):
+        """
+        Returns the lowered form of the loop.
+
+        Returns
+        -------
+        lowered_func: LoweredFunc
+        """
+
+        batch = self.batch_size
+        in_channel = self.input_shape[1]
+        out_channel = 1
+        in_size = self.input_shape[2]
+        kernel = self.kernel_size
+        pad = self.padding
+        stride = self.strides
+
+        A = tvm.placeholder((batch, in_channel, in_size, in_size), name="A")
+        W = tvm.placeholder((out_channel, in_channel, kernel, kernel), name="W")
+        out_size = math.floor((in_size - kernel + 2*pad) // stride) + 1
+        assert(out_size == self.output_shape[2])
+
+        # insert padding to input
+        # over = ((in_size + 2*pad) - kernel) % stride
+        # width = (in_size + 2*pad) - over
+        width = in_size + 2*pad
+        Apad = tvm.compute(
+            (batch, in_channel, width, width),
+            lambda n, c, xx, yy: tvm.if_then_else(
+                tvm.all(yy >= pad, yy - pad < in_size,
+                        xx >= pad, xx - pad < in_size),
+                A[n, c, xx-pad, yy-pad], tvm.const(0., "float32")),
+            name='I')
+
+        # Create reduction variables
+        ry = tvm.reduce_axis((0, kernel), name='fy')
+        rx = tvm.reduce_axis((0, kernel), name='fx')
+        # Compute the convolution
+        O = tvm.compute(
+            (batch, in_channel, out_size, out_size),
+            lambda n, c, ox, oy: tvm.sum(
+                Apad[n, c, ox * stride + rx, oy * stride + ry] * W[0, c, rx, ry],
+                axis=[rx, ry]),
+            name='O')
+
+        self._I = Apad
+        self._W = W
+        self._O = O
+
+        self._tensors = {
+            "I": self._I,
+            "W": self._W,
+            "O": self._O,
+        }
+
+        s = tvm.create_schedule([O.op])
+        n, c, ox, oy = O.op.axis
+        s[O].reorder(n, c, ox, oy, rx, ry)
+
+        return tvm.lower(s, [A, W, O], simple_mode=True)
+
+
+    def _get_num_different_pixels(self, op, idx_list):
+        """
+        `op`: `tvm.expr.Load` or `tvm.stmt.Store`
+        `idx_list`: list of integer representing trip counts of each dimension
+            the length and order should be same as self._default_loop_order
+        """
+
+        assert(len(idx_list) == len(self._default_loop_order))
+        #currently assume the input is given in the order of [n, m, c, ox, oy, fx, fy]
+        n, m, c, ox, oy, fx, fy = tuple(idx_list)
+
+        #currently the index is hardcoded
+        op_name = op.buffer_var.name
+        if op_name == "I":
+            return n * c * ((ox-1)*self.strides + fx) * ((oy-1)*self.strides + fy)
+        elif op_name == "W":
+            return c * fx * fy
+        elif op_name == "O":
+            return n * c * ox * oy
+        else:
+            assert False
 
 
 class GemmLayer(LayerBase):
@@ -1634,6 +1774,7 @@ def parse_conv_layers(sym, target, shape_dict, params, env, batch_size):
     nodes = []
     output_shape = {}
     input_shape = {}
+    weights_shape = {}
     for i, node in enumerate(json_graph["nodes"]):
         name = node["name"]
         output_shape[name] = shape[i]
@@ -1650,28 +1791,56 @@ def parse_conv_layers(sym, target, shape_dict, params, env, batch_size):
             input_shape[name] = shape[input_index]
             node_info["input_shape"] = shape[input_index]
 
+            #find shape of weights
+            weights_index = node["inputs"][1][0]
+            weights_shape[name] = shape[weights_index]
+            node_info["weights_shape"] = shape[weights_index]
         except:
             pass
         nodes.append(node_info)
 
     parsed_layers = []
-    for layer in layers:
-        if "op" in layer and "conv" in layer["op"]:
+    # for layer in layers:
+    #     if "op" in layer and "conv" in layer["op"]:
+    #         name = layer["name"]
+    #         layer["output_shape"] = output_shape[name]
+    #         layer["input_shape"] = input_shape[name]
+    #         layer["batch_size"] = batch_size
+    #         conv_layer = ConvLayer(env=env, **layer)
+    #         parsed_layers.append(conv_layer)
+    #     elif "op" in layer and "dense" in layer["op"]:
+    #         name = layer["name"]
+    #         layer["output_shape"] = output_shape[name]
+    #         layer["input_shape"] = input_shape[name]
+    #         layer["M"] = int(input_shape[name][0]) * batch_size
+    #         layer["N"] = int(layer["units"])
+    #         layer["K"] = int(input_shape[name][1])
+    #         conv_layer = GemmLayer(env=env, **layer)
+    #         parsed_layers.append(conv_layer)
+    #     else: #not yet supported layer type
+    #         parsed_layers.append(layer)
+
+    for idx, layer in enumerate(layers):
+        layer["index"] = idx
+        if ("op" in layer) and ("conv2d" in layer["op"]):
             name = layer["name"]
             layer["output_shape"] = output_shape[name]
             layer["input_shape"] = input_shape[name]
             layer["batch_size"] = batch_size
-            conv_layer = ConvLayer(env=env, **layer)
+            if weights_shape[name][1] == 1:
+                conv_layer = DWConvLayer(env=env, **layer)
+            else:
+                conv_layer = ConvLayer(env=env, **layer)
             parsed_layers.append(conv_layer)
-        elif "op" in layer and "dense" in layer["op"]:
+        elif ("op" in layer) and ("dense" in layer["op"]):
             name = layer["name"]
             layer["output_shape"] = output_shape[name]
             layer["input_shape"] = input_shape[name]
             layer["M"] = int(input_shape[name][0]) * batch_size
             layer["N"] = int(layer["units"])
             layer["K"] = int(input_shape[name][1])
-            conv_layer = GemmLayer(env=env, **layer)
-            parsed_layers.append(conv_layer)
+            gemm_layer = GemmLayer(env=env, **layer)
+            parsed_layers.append(gemm_layer)
         else: #not yet supported layer type
             parsed_layers.append(layer)
 
