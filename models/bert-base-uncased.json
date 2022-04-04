@@ -1,0 +1,66 @@
+{
+  "GEMM": [
+    {
+      "name": "encoder.layer.0.attention.self.query",
+      "size_tensor_A": [107, 768],
+      "size_tensor_B": [768, 768],
+      "instances": 12,
+      "names_repeated_layers": ["Repeated for Total Twelve Encoder Layers"],
+      "comment": "107 samples represents the sequence length."
+    },
+    {
+      "name": "encoder.layer.0.attention.self.key",
+      "size_tensor_A": [107, 768],
+      "size_tensor_B": [768, 768],
+      "instances": 12,
+      "names_repeated_layers": ["Repeated for Total Twelve Encoder Layers"]
+    },
+    {
+      "name": "encoder.layer.0.attention.self.value",
+      "size_tensor_A": [107, 768],
+      "size_tensor_B": [768, 768],
+      "instances": 12,
+      "names_repeated_layers": ["Repeated for Total Twelve Encoder Layers"]
+    },
+    {
+      "name": "encoder.layer.0.attention.qkT",
+      "size_tensor_A": [107, 64],
+      "size_tensor_B": [64, 107],
+      "instances": 144,
+      "names_repeated_layers": ["Total 144. Repeated for Total Twelve Encoder Layers. Per Layer, It's Repeated for Total Twelve Attention Heads."]
+    },
+    {
+      "name": "encoder.layer.0.attention.qkT_v",
+      "size_tensor_A": [107, 107],
+      "size_tensor_B": [107, 64],
+      "instances": 144,
+      "names_repeated_layers": ["Total 144. Repeated for Total Twelve Encoder Layers. Per Layer, It's Repeated for Total Twelve Attention Heads."]
+    },
+    {
+      "name": "encoder.layer.0.attention.output.dense",
+      "size_tensor_A": [107, 768],
+      "size_tensor_B": [768, 768],
+      "instances": 12,
+      "names_repeated_layers": ["Repeated for Total Twelve Encoder Layers"]
+    },
+    {
+      "name": "encoder.layer.0.intermediate.dense",
+      "size_tensor_A": [107, 768],
+      "size_tensor_B": [768, 3072],
+      "instances": 12,
+      "names_repeated_layers": ["Repeated for Total Twelve Encoder Layers"]
+    },
+    {
+      "name": "encoder.layer.0.output.dense",
+      "size_tensor_A": [107, 3072],
+      "size_tensor_B": [3072, 768],
+      "instances": 12,
+      "names_repeated_layers": ["Repeated for Total Twelve Encoder Layers"]
+    },
+    {
+      "name": "qa_outputs",
+      "size_tensor_A": [107, 768],
+      "size_tensor_B": [768, 2]
+    }
+  ]
+}

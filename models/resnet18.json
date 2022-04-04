@@ -1,0 +1,63 @@
+{
+"CONV": [
+  {
+    "name": "ResNet18_CONV_1_1",
+    "size_tensor_A": [1, 3, 229, 229],
+    "size_tensor_B": [64, 3, 7, 7],
+    "strides": [2, 2]
+  },
+  {
+    "name": "ResNet18_CONV_2_1a",
+    "size_tensor_A": [1, 64, 58, 58],
+    "size_tensor_B": [64, 64, 3, 3],
+    "strides": [1, 1],
+    "instances": 4
+  },
+  {
+    "name": "ResNet18_CONV_3_1a",
+    "size_tensor_A": [1, 64, 58, 58],
+    "size_tensor_B": [128, 64, 3, 3],
+    "strides": [2, 2]
+  },
+  {
+    "name": "ResNet18_CONV_3_1b",
+    "size_tensor_A": [1, 128, 30, 30],
+    "size_tensor_B": [128, 128, 3, 3],
+    "strides": [1, 1],
+    "instances": 3
+  },
+  {
+    "name": "ResNet18_CONV_4_1a",
+    "size_tensor_A": [1, 128, 30, 30],
+    "size_tensor_B": [256, 128, 3, 3],
+    "strides": [2, 2]
+  },
+  {
+    "name": "ResNet18_CONV_4_1b",
+    "size_tensor_A": [1, 256, 16, 16],
+    "size_tensor_B": [256, 256, 3, 3],
+    "strides": [1, 1],
+    "instances": 3
+  },
+  {
+    "name": "ResNet18_CONV_5_1a",
+    "size_tensor_A": [1, 256, 16, 16],
+    "size_tensor_B": [512, 256, 3, 3],
+    "strides": [2, 2]
+  },
+  {
+    "name": "ResNet18_CONV_5_1b",
+    "size_tensor_A": [1, 512, 9, 9],
+    "size_tensor_B": [512, 512, 3, 3],
+    "strides": [1, 1],
+    "instances": 3
+  }
+],
+"GEMM": [
+  {
+    "name": "ResNet18_FC",
+    "size_tensor_A": [1, 25088],
+    "size_tensor_B": [25088, 1000]
+  }
+]
+}

@@ -1,0 +1,51 @@
+{
+  "CONV": [
+    {
+      "name": "AlexNet_CONV_1",
+      "size_tensor_A": [1, 3, 227, 227],
+      "size_tensor_B": [96, 3, 11, 11],
+      "strides": [4, 4]
+    },
+    {
+      "name": "AlexNet_CONV_2",
+      "size_tensor_A": [1, 96, 31, 31],
+      "size_tensor_B": [256, 96, 5, 5],
+      "strides": [1, 1]
+    },
+    {
+      "name": "AlexNet_CONV_3",
+      "size_tensor_A": [1, 256, 15, 15],
+      "size_tensor_B": [384, 256, 3, 3],
+      "strides": [1, 1]
+    },
+    {
+      "name": "AlexNet_CONV_4",
+      "size_tensor_A": [1, 384, 15, 15],
+      "size_tensor_B": [384, 384, 3, 3],
+      "strides": [1, 1]
+    },
+    {
+      "name": "AlexNet_CONV_5",
+      "size_tensor_A": [1, 384, 15, 15],
+      "size_tensor_B": [256, 384, 3, 3],
+      "strides": [1, 1]
+    }
+  ],
+  "GEMM": [
+    {
+      "name": "AlexNet_FC_6",
+      "size_tensor_A": [1, 9216],
+      "size_tensor_B": [9216, 4096]
+    },
+    {
+      "name": "AlexNet_FC_7",
+      "size_tensor_A": [1, 4096],
+      "size_tensor_B": [4096, 4096]
+    },
+    {
+      "name": "AlexNet_FC_8",
+      "size_tensor_A": [1, 4096],
+      "size_tensor_B": [4096, 1000]
+    }
+  ]
+}

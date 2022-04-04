@@ -1,0 +1,99 @@
+{
+  "CONV": [
+    {
+      "name": "VGG16_CONV_1_1",
+      "size_tensor_A": [1, 3, 226, 226],
+      "size_tensor_B": [64, 3, 3, 3],
+      "strides": [1, 1]
+    },
+    {
+      "name": "VGG16_CONV_1_2",
+      "size_tensor_A": [1, 64, 226, 226],
+      "size_tensor_B": [64, 64, 3, 3],
+      "strides": [1, 1]
+    },
+    {
+      "name": "VGG16_CONV_2_1",
+      "size_tensor_A": [1, 64, 114, 114],
+      "size_tensor_B": [128, 64, 3, 3],
+      "strides": [1, 1]
+    },
+    {
+      "name": "VGG16_CONV_2_2",
+      "size_tensor_A": [1, 128, 114, 114],
+      "size_tensor_B": [128, 128, 3, 3],
+      "strides": [1, 1]
+    },
+    {
+      "name": "VGG16_CONV_3_1",
+      "size_tensor_A": [1, 128, 58, 58],
+      "size_tensor_B": [256, 128, 3, 3],
+      "strides": [1, 1]
+    },
+    {
+      "name": "VGG16_CONV_3_2",
+      "size_tensor_A": [1, 256, 58, 58],
+      "size_tensor_B": [256, 256, 3, 3],
+      "strides": [1, 1]
+    },
+    {
+      "name": "VGG16_CONV_3_3",
+      "size_tensor_A": [1, 256, 58, 58],
+      "size_tensor_B": [256, 256, 3, 3],
+      "strides": [1, 1]
+    },
+    {
+      "name": "VGG16_CONV_4_1",
+      "size_tensor_A": [1, 256, 30, 30],
+      "size_tensor_B": [512, 256, 3, 3],
+      "strides": [1, 1]
+    },
+    {
+      "name": "VGG16_CONV_4_2",
+      "size_tensor_A": [1, 512, 30, 30],
+      "size_tensor_B": [512, 512, 3, 3],
+      "strides": [1, 1]
+    },
+    {
+      "name": "VGG16_CONV_4_3",
+      "size_tensor_A": [1, 512, 30, 30],
+      "size_tensor_B": [512, 512, 3, 3],
+      "strides": [1, 1]
+    },
+    {
+      "name": "VGG16_CONV_5_1",
+      "size_tensor_A": [1, 512, 16, 16],
+      "size_tensor_B": [512, 512, 3, 3],
+      "strides": [1, 1]
+    },
+    {
+      "name": "VGG16_CONV_5_2",
+      "size_tensor_A": [1, 512, 16, 16],
+      "size_tensor_B": [512, 512, 3, 3],
+      "strides": [1, 1]
+    },
+    {
+      "name": "VGG16_CONV_5_3",
+      "size_tensor_A": [1, 512, 16, 16],
+      "size_tensor_B": [512, 512, 3, 3],
+      "strides": [1, 1]
+    }
+  ],
+  "GEMM": [
+    {
+      "name": "VGG16_FC_6",
+      "size_tensor_A": [1, 25088],
+      "size_tensor_B": [25088, 4096]
+    },
+    {
+      "name": "VGG16_FC_7",
+      "size_tensor_A": [1, 4096],
+      "size_tensor_B": [4096, 4096]
+    },
+    {
+      "name": "VGG16_FC_8",
+      "size_tensor_A": [1, 4096],
+      "size_tensor_B": [4096, 1000]
+    }
+  ]
+}

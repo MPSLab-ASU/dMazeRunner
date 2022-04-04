@@ -1,0 +1,206 @@
+{
+  "CONV": [
+    {
+      "name": "features.0.0",
+      "size_tensor_A": [1, 3, 225, 225],
+      "size_tensor_B": [32, 3, 3, 3],
+      "strides": [2, 2]
+    },
+    {
+      "name": "features.1.conv.3",
+      "size_tensor_A": [1, 32, 112, 112],
+      "size_tensor_B": [16, 32, 1, 1],
+      "strides": [1, 1]
+    },
+    {
+      "name": "features.2.conv.0",
+      "size_tensor_A": [1, 16, 112, 112],
+      "size_tensor_B": [96, 16, 1, 1],
+      "strides": [1, 1]
+    },
+    {
+      "name": "features.2.conv.6",
+      "size_tensor_A": [1, 96, 56, 56],
+      "size_tensor_B": [24, 96, 1, 1],
+      "strides": [1, 1]
+    },
+    {
+      "name": "features.3.conv.0",
+      "size_tensor_A": [1, 24, 56, 56],
+      "size_tensor_B": [144, 24, 1, 1],
+      "strides": [1, 1],
+      "instances": 2
+    },
+    {
+      "name": "features.3.conv.6",
+      "size_tensor_A": [1, 144, 56, 56],
+      "size_tensor_B": [24, 144, 1, 1],
+      "strides": [1, 1]
+    },
+    {
+      "name": "features.4.conv.6",
+      "size_tensor_A": [1, 144, 28, 28],
+      "size_tensor_B": [32, 144, 1, 1],
+      "strides": [1, 1]
+    },
+    {
+      "name": "features.5.conv.0",
+      "size_tensor_A": [1, 32, 28, 28],
+      "size_tensor_B": [192, 32, 1, 1],
+      "strides": [1, 1],
+      "instances": 3
+    },
+    {
+      "name": "features.5.conv.6",
+      "size_tensor_A": [1, 192, 28, 28],
+      "size_tensor_B": [32, 192, 1, 1],
+      "strides": [1, 1],
+      "instances": 2
+    },
+    {
+      "name": "features.7.conv.6",
+      "size_tensor_A": [1, 192, 14, 14],
+      "size_tensor_B": [64, 192, 1, 1],
+      "strides": [1, 1]
+    },
+    {
+      "name": "features.8.conv.0",
+      "size_tensor_A": [1, 64, 14, 14],
+      "size_tensor_B": [384, 64, 1, 1],
+      "strides": [1, 1],
+      "instances": 4
+    },
+    {
+      "name": "features.8.conv.6",
+      "size_tensor_A": [1, 384, 14, 14],
+      "size_tensor_B": [64, 384, 1, 1],
+      "strides": [1, 1],
+      "instances": 3
+    },
+    {
+      "name": "features.11.conv.6",
+      "size_tensor_A": [1, 384, 14, 14],
+      "size_tensor_B": [96, 384, 1, 1],
+      "strides": [1, 1]
+    },
+    {
+      "name": "features.12.conv.0",
+      "size_tensor_A": [1, 96, 14, 14],
+      "size_tensor_B": [576, 96, 1, 1],
+      "strides": [1, 1],
+      "instances": 3
+    },
+    {
+      "name": "features.12.conv.6",
+      "size_tensor_A": [1, 576, 14, 14],
+      "size_tensor_B": [96, 576, 1, 1],
+      "strides": [1, 1],
+      "instances": 2
+    },
+    {
+      "name": "features.14.conv.6",
+      "size_tensor_A": [1, 576, 7, 7],
+      "size_tensor_B": [160, 576, 1, 1],
+      "strides": [1, 1]
+    },
+    {
+      "name": "features.15.conv.0",
+      "size_tensor_A": [1, 160, 7, 7],
+      "size_tensor_B": [960, 160, 1, 1],
+      "strides": [1, 1],
+      "instances": 3
+    },
+    {
+      "name": "features.15.conv.6",
+      "size_tensor_A": [1, 960, 7, 7],
+      "size_tensor_B": [160, 960, 1, 1],
+      "strides": [1, 1],
+      "instances": 2
+    },
+    {
+      "name": "features.17.conv.6",
+      "size_tensor_A": [1, 960, 7, 7],
+      "size_tensor_B": [320, 960, 1, 1],
+      "strides": [1, 1]
+    },
+    {
+      "name": "features.18.conv.0",
+      "size_tensor_A": [1, 320, 7, 7],
+      "size_tensor_B": [1280, 320, 1, 1],
+      "strides": [1, 1]
+    }
+  ],
+  "DW_CONV": [
+    {
+      "name": "features.1.conv.0",
+      "size_tensor_A": [1, 32, 114, 114],
+      "size_tensor_B": [1, 32, 3, 3],
+      "strides": [1, 1]
+    },
+    {
+      "name": "features.2.conv.3",
+      "size_tensor_A": [1, 96, 113, 113],
+      "size_tensor_B": [1, 96, 3, 3],
+      "strides": [2, 2]
+    },
+    {
+      "name": "features.3.conv.3",
+      "size_tensor_A": [1, 144, 58, 58],
+      "size_tensor_B": [1, 144, 3, 3],
+      "strides": [1, 1]
+    },
+    {
+      "name": "features.4.conv.3",
+      "size_tensor_A": [1, 144, 57, 57],
+      "size_tensor_B": [1, 144, 3, 3],
+      "strides": [2, 2]
+    },
+    {
+      "name": "features.5.conv.3",
+      "size_tensor_A": [1, 192, 30, 30],
+      "size_tensor_B": [1, 192, 3, 3],
+      "strides": [1, 1],
+      "instances": 2
+    },
+    {
+      "name": "features.7.conv.3",
+      "size_tensor_A": [1, 192, 29, 29],
+      "size_tensor_B": [1, 192, 3, 3],
+      "strides": [2, 2]
+    },
+    {
+      "name": "features.8.conv.3",
+      "size_tensor_A": [1, 384, 16, 16],
+      "size_tensor_B": [1, 384, 3, 3],
+      "strides": [1, 1],
+      "instances": 4
+    },
+    {
+      "name": "features.12.conv.3",
+      "size_tensor_A": [1, 576, 16, 16],
+      "size_tensor_B": [1, 576, 3, 3],
+      "strides": [1, 1],
+      "instances": 2
+    },
+    {
+      "name": "features.14.conv.3",
+      "size_tensor_A": [1, 576, 15, 15],
+      "size_tensor_B": [1, 576, 3, 3],
+      "strides": [2, 2]
+    },
+    {
+      "name": "features.15.conv.3",
+      "size_tensor_A": [1, 960, 9, 9],
+      "size_tensor_B": [1, 960, 3, 3],
+      "strides": [1, 1],
+      "instances": 3
+    }
+  ],
+  "GEMM": [
+    {
+      "name": "classifier.1",
+      "size_tensor_A": [1, 1280],
+      "size_tensor_B": [1280, 1000]
+    }
+  ]
+}

@@ -16,6 +16,12 @@ python run_optimizer.py --frontend mxnet --model alexnet --auto-optimize
 python run_optimizer.py --frontend mxnet --model resnet18_v1 --layer-index 62 --arch-spec arch_spec.json --auto-optimize
 ```
 
+* Users can also specify custom models through .json files. Directory "models" provides examples for some models for computer vision and language processing tasks.
+
+```bash
+python run_optimizer.py --files-model-spec ../models/bert-base-uncased.json --arch-spec arch_spec.json --auto-optimize
+```
+
 * Instead of auto optimization, it is also possible to explore the impact of individual optimization strategy, or enabling additional strategies for a directed search. For example,
 
 ```bash

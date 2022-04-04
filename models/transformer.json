@@ -1,0 +1,174 @@
+{
+  "GEMM": [
+    {
+      "name": "encoder.layers.0.self_attn.k_proj",
+      "size_tensor_A": [24, 512],
+      "size_tensor_B": [512, 512],
+      "instances": 6,
+      "names_repeated_layers": ["Repeated for Total Six Encoder Layers"],
+      "comment": "24 samples represents the sequence length."
+    },
+    {
+      "name": "encoder.layers.0.self_attn.v_proj",
+      "size_tensor_A": [24, 512],
+      "size_tensor_B": [512, 512],
+      "instances": 6,
+      "names_repeated_layers": ["Repeated for Total Six Encoder Layers"]
+    },
+    {
+      "name": "encoder.layers.0.self_attn.q_proj",
+      "size_tensor_A": [24, 512],
+      "size_tensor_B": [512, 512],
+      "instances": 6,
+      "names_repeated_layers": ["Repeated for Total Six Encoder Layers"]
+    },
+    {
+      "name": "encoder.layers.0.self_attn.qkT",
+      "size_tensor_A": [24, 64],
+      "size_tensor_B": [64, 24],
+      "instances": 48,
+      "names_repeated_layers": ["Total 48. Repeated for Total Six Encoder Layers. Per Layer, It's Repeated for Total Eight Attention Heads."]
+    },
+    {
+      "name": "encoder.layers.0.self_attn.qkT_v",
+      "size_tensor_A": [24, 24],
+      "size_tensor_B": [24, 64],
+      "instances": 48,
+      "names_repeated_layers": ["Total 48. Repeated for Total Six Encoder Layers. Per Layer, It's Repeated for Total Eight Attention Heads."]
+    },
+    {
+      "name": "encoder.layers.0.self_attn.out_proj",
+      "size_tensor_A": [24, 512],
+      "size_tensor_B": [512, 512],
+      "instances": 6,
+      "names_repeated_layers": ["Repeated for Total Six Encoder Layers"]
+    },
+    {
+      "name": "encoder.layers.0.fc1",
+      "size_tensor_A": [24, 512],
+      "size_tensor_B": [512, 2048],
+      "instances": 6,
+      "names_repeated_layers": ["Repeated for Total Six Encoder Layers"]
+    },
+    {
+      "name": "encoder.layers.0.fc2",
+      "size_tensor_A": [24, 2048],
+      "size_tensor_B": [2048, 512],
+      "instances": 6,
+      "names_repeated_layers": ["Repeated for Total Six Encoder Layers"]
+    },
+    {
+      "name": "decoder.layers.0.self_attn.k_proj",
+      "size_tensor_A": [145, 512],
+      "size_tensor_B": [512, 512],
+      "instances": 6,
+      "names_repeated_layers": ["Repeated for Total Six Decoder Layers"],
+      "comment": "Input shape is measured as [29, 5, 512]. 29 corresponds to the sequence length."
+    },
+    {
+      "name": "decoder.layers.0.self_attn.v_proj",
+      "size_tensor_A": [145, 512],
+      "size_tensor_B": [512, 512],
+      "instances": 6,
+      "names_repeated_layers": ["Repeated for Total Six Decoder Layers"],
+      "comment": "Input shape is measured as [29, 5, 512]. 29 corresponds to the sequence length."
+    },
+    {
+      "name": "decoder.layers.0.self_attn.q_proj",
+      "size_tensor_A": [145, 512],
+      "size_tensor_B": [512, 512],
+      "instances": 6,
+      "names_repeated_layers": ["Repeated for Total Six Decoder Layers"],
+      "comment": "Input shape is measured as [29, 5, 512]. 29 corresponds to the sequence length."
+    },
+    {
+      "name": "decoder.layers.0.self_attn.qkT",
+      "size_tensor_A": [29, 64],
+      "size_tensor_B": [64, 29],
+      "instances": 240,
+      "names_repeated_layers": ["Total 240. Repeated for Total Six Decoder Layers. Per Layer, It's Repeated for Total Eight Attention Heads. Per Layer and Attention Head, It's Done over 5 Input Sequences."]
+    },
+    {
+      "name": "decoder.layers.0.self_attn.qkT_v",
+      "size_tensor_A": [29, 29],
+      "size_tensor_B": [29, 64],
+      "instances": 240,
+      "names_repeated_layers": ["Total 240. Repeated for Total Six Decoder Layers. Per Layer, It's Repeated for Total Eight Attention Heads. Per Layer and Attention Head, It's Done over 5 Input Sequences."]
+    },
+    {
+      "name": "decoder.layers.0.self_attn.out_proj",
+      "size_tensor_A": [145, 512],
+      "size_tensor_B": [512, 512],
+      "instances": 6,
+      "names_repeated_layers": ["Repeated for Total Six Decoder Layers"],
+      "comment": "Input shape is measured as [29, 5, 512]. 29 corresponds to the sequence length."
+    },
+    {
+      "name": "decoder.layers.0.encoder_attn.k_proj",
+      "size_tensor_A": [120, 512],
+      "size_tensor_B": [512, 512],
+      "instances": 6,
+      "names_repeated_layers": ["Repeated for Total Six Decoder Layers"],
+      "comment": "Input shape is measured as [24, 5, 512]. 24 corresponds to the sequence length (output from encoder)."
+    },
+    {
+      "name": "decoder.layers.0.encoder_attn.v_proj",
+      "size_tensor_A": [120, 512],
+      "size_tensor_B": [512, 512],
+      "instances": 6,
+      "names_repeated_layers": ["Repeated for Total Six Decoder Layers"],
+      "comment": "Input shape is measured as [24, 5, 512]. 24 corresponds to the sequence length (output from encoder)."
+    },
+    {
+      "name": "decoder.layers.0.encoder_attn.q_proj",
+      "size_tensor_A": [145, 512],
+      "size_tensor_B": [512, 512],
+      "instances": 6,
+      "names_repeated_layers": ["Repeated for Total Six Decoder Layers"],
+      "comment": "Input shape is measured as [29, 5, 512]. 29 corresponds to the sequence length."
+    },
+    {
+      "name": "decoder.layers.0.encoder_attn.qkT",
+      "size_tensor_A": [29, 64],
+      "size_tensor_B": [64, 24],
+      "instances": 240,
+      "names_repeated_layers": ["Total 240. Repeated for Total Six Decoder Layers. Per Layer, It's Repeated for Total Eight Attention Heads. Per Layer and Attention Head, It's Done over 5 Input Sequences."]
+    },
+    {
+      "name": "decoder.layers.0.encoder_attn.qkT_v",
+      "size_tensor_A": [29, 24],
+      "size_tensor_B": [24, 64],
+      "instances": 240,
+      "names_repeated_layers": ["Total 240. Repeated for Total Six Decoder Layers. Per Layer, It's Repeated for Total Eight Attention Heads. Per Layer and Attention Head, It's Done over 5 Input Sequences."]
+    },
+    {
+      "name": "decoder.layers.0.encoder_attn.out_proj",
+      "size_tensor_A": [145, 512],
+      "size_tensor_B": [512, 512],
+      "instances": 6,
+      "names_repeated_layers": ["Repeated for Total Six Decoder Layers"],
+      "comment": "Input shape is measured as [29, 5, 512]. 29 corresponds to the sequence length."
+    },
+    {
+      "name": "decoder.layers.0.fc1",
+      "size_tensor_A": [145, 512],
+      "size_tensor_B": [512, 2048],
+      "instances": 6,
+      "names_repeated_layers": ["Repeated for Total Six Decoder Layers"],
+      "comment": "Input shape is measured as [29, 5, 512]. 29 corresponds to the sequence length."
+    },
+    {
+      "name": "decoder.layers.0.fc2",
+      "size_tensor_A": [145, 2048],
+      "size_tensor_B": [2048, 512],
+      "instances": 6,
+      "names_repeated_layers": ["Repeated for Total Six Decoder Layers"],
+      "comment": "Input shape is measured as [29, 5, 2048]. 29 corresponds to the sequence length."
+    },
+    {
+      "name": "decoder.output_projection",
+      "size_tensor_A": [29, 512],
+      "size_tensor_B": [512, 33288]
+    }
+  ]
+}
