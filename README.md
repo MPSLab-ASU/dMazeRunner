@@ -55,6 +55,12 @@ For example, users can optimize dataflow acceleration of ResNet model with the f
 python run_optimizer.py --frontend mxnet --model resnet18_v1 --auto-optimize
 ```
 
+or
+
+```bash
+python run_optimizer.py --files-model-spec ../models/resnet18.json --arch-spec arch_spec.json --auto-optimize
+```
+
 For addiotional details, please refer to `scripts/README`. More information about the execution methods is available in `scripts/execution_methods.txt`. Please note that currently dMazeRunner supports analysis and optimizations for a limited MXNet and keras models. In near future, we plan to enable front-end support for more ML application libraries, as well as improvisations in analytical model and more sophisticated mapping-search-space and design-space explorations.
 
 
